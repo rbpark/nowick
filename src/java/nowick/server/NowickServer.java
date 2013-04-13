@@ -1,43 +1,36 @@
 package nowick.server;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.util.Arrays;
-import java.util.Properties;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 
-import nowick.utils.PropertiesWrapper;
+import nowick.user.UserManager;
+import nowick.utils.Properties;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.mortbay.jetty.Server;
+import org.mortbay.jetty.bio.SocketConnector;
 import org.mortbay.jetty.security.SslSocketConnector;
 import org.mortbay.jetty.servlet.Context;
+import org.mortbay.jetty.servlet.ServletHolder;
 import org.mortbay.thread.QueuedThreadPool;
 
-public class NowickServer {
+public class NowickServer implements NowickParameters{
 	private static final Logger logger = Logger.getLogger(NowickServer.class);
-	private static final String CONF_FILE_NAME = "nowick.xml";
+	private static final String CONF_FILE_NAME = "nowick.json";
 	
-	// Parameters for jetty's thread
-	private static final String NUM_THREADS_PARAM = "jetty.num.threads";
-	private static final int DEFAULT_NUM_THREADS = 25;
-
-	// Parameters for authentication port
-	private static final String AUTHENTICATION_PORT_PARAM = "authentication.port";
-	private static final int DEFAULT_AUTHENTICATION_PORT = 443;
-	
-	
-	private Properties settings;
+	private Properties props;
 	private final Server server;
+	private Server secureServer;
 	
-	public static void main(String[] args) {
+	private UserManager userManager;
+	
+	public static void main(String[] args) throws Exception {
 		OptionParser parser = new OptionParser();
 
 		OptionSpec<String> configDirectory = parser
@@ -71,7 +64,7 @@ public class NowickServer {
 		}
 	}
 
-	private static Properties getPropertiesFromPath(File path) {
+	private static Properties getPropertiesFromPath(File path) throws IOException {
 		logger.info("Loading nowick settings file from " + path);
 		if (!path.exists()) {
 			logger.error("Conf directory " + path.getPath() + " doesn't exist.");
@@ -87,7 +80,7 @@ public class NowickServer {
 		}
 	}
 	
-	private static Properties getProperties(File confPath) {
+	private static Properties getProperties(File confPath) throws IOException {
 		if (!confPath.exists()) {
 			logger.error("Conf directory " + confPath + " doesn't exist.");
 			return null;
@@ -102,38 +95,117 @@ public class NowickServer {
 			}
 		}
 
+		logger.info("Loading nowick configurations from file " + confFile.getPath());
 		Properties props = new Properties();
-		BufferedInputStream stream = null;
-		try {
-			stream = new BufferedInputStream(new FileInputStream(confFile));
-			props.loadFromXML(stream);
-		}
-		catch (IOException e) {
-			logger.error("Error loading conf file", e);
-		}
-		finally {
-			IOUtils.closeQuietly(stream);
-		}
+		props.loadProperties(confFile);
 		
 		return props;
 	}
 	
 	public NowickServer(Properties props) {
 		server = new Server();
-//		
-//		PropertiesWrapper wrapper = new PropertiesWrapper(props);
-//		
-//		Context root = new Context(server, "/", Context.SESSIONS);
-//		QueuedThreadPool httpThreadPool = new QueuedThreadPool(wrapper.getInt(NUM_THREADS_PARAM, DEFAULT_NUM_THREADS));
-//		server.setThreadPool(httpThreadPool);
-//		
-//		SslSocketConnector secureConnector = new SslSocketConnector();
-//		secureConnector.setPort(wrapper.getInt(AUTHENTICATION_PORT_PARAM, DEFAULT_AUTHENTICATION_PORT));
-//		secureConnector.setKeystore(azkabanSettings.getString("jetty.keystore"));
-//		secureConnector.setPassword(azkabanSettings.getString("jetty.password"));
-//		secureConnector.setKeyPassword(azkabanSettings.getString("jetty.keypassword"));
-//		secureConnector.setTruststore(azkabanSettings.getString("jetty.truststore"));
-//		secureConnector.setTrustPassword(azkabanSettings.getString("jetty.trustpassword"));
-//		secureConnector.setHeaderBufferSize(MAX_HEADER_BUFFER_SIZE);
+		this.props = props;
+		Properties jettyProperties = props.getSubProperty("jetty");
+		
+		Context root = new Context(server, "/", Context.SESSIONS);
+		QueuedThreadPool httpThreadPool = new QueuedThreadPool(jettyProperties.getInt(NUM_CONNECTIONS, DEFAULT_NUM_THREADS));
+		server.setThreadPool(httpThreadPool);
+		SocketConnector socketConnector = new SocketConnector();
+		socketConnector.setPort(jettyProperties.getInt(PORT, DEFAULT_AUTHENTICATION_PORT));
+
+		// Setup auth to be on ssl port if desired.
+		if (jettyProperties.getBoolean(USE_SSL_AUTHENTICATION)) {
+			secureServer = new Server();
+			Context secureContext = new Context(secureServer, "/", true, true);
+			
+			SslSocketConnector secureConnector = new SslSocketConnector();
+			Properties jettySSLProperties = jettyProperties.getSubProperty(JETTY_SSL);
+			secureConnector.setPort(jettySSLProperties.getInt(PORT, DEFAULT_AUTHENTICATION_PORT));
+			secureConnector.setKeystore(jettySSLProperties.getString(JETTY_SSL_KEYSTORE));
+			secureConnector.setPassword(jettySSLProperties.getString(JETTY_SSL_PASSWORD));
+			secureConnector.setKeyPassword(jettySSLProperties.getString(JETTY_SSL_KEYPASSWORD));
+			secureConnector.setTruststore(jettySSLProperties.getString(JETTY_SSL_TRUSTSTORE));
+			secureConnector.setTrustPassword(jettySSLProperties.getString(JETTY_SSL_TRUSTPASSWORD));
+			secureConnector.setHeaderBufferSize(jettySSLProperties.getInt(MAX_HEADER_CONTEXT_SIZE, DEFAULT_MAX_HEADER_BUFFER_SIZE));
+
+			secureServer.addConnector(secureConnector);
+			secureContext.addServlet(new ServletHolder(new AuthServlet()),"/auth");
+			
+			logger.info("Starting auth server on SSL server on port " + secureConnector.getPort());
+			try {
+				secureServer.start();
+			} 
+			catch (Exception e) {
+				logger.error(e);
+				System.exit(1);
+			}
+		}
+		else {
+			logger.info("Not using ssl for authentication. Using unsecure port " + socketConnector.getPort());
+			root.addServlet(new ServletHolder(new AuthServlet()),"/auth");
+		}
+		
+		logger.info("Starting server.");
+		try {
+			server.start();
+		} 
+		catch (Exception e) {
+			logger.error(e);
+			System.exit(1);
+		}
+		
+		userManager = loadUserManager(props.getSubProperty(USER_MANAGER));
+		
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			public void run() {
+				logger.info("Shutting down http server...");
+				try {
+					server.stop();
+					server.destroy();
+					
+					if (secureServer != null) {
+						secureServer.stop();
+						secureServer.destroy();
+					}
+				} 
+				catch (Exception e) {
+					logger.error("Error while shutting down http server.", e);
+				}
+				logger.info("kk thx bye.");
+			}
+		});
+		logger.info("Server running on port " + socketConnector.getPort() + ".");
+	}
+	
+	private UserManager loadUserManager(Properties userManagerProps) {
+		Class<?> userManagerClass = null;
+		try {
+			userManagerClass = Class.forName(props.getString(USER_MANAGER_CLASS));
+		} catch (ClassNotFoundException e1) {
+			throw new RuntimeException("Cannot load user manager class " + props.getString(USER_MANAGER_CLASS));
+		}
+		logger.info("Loading user manager class " + userManagerClass.getName());
+		UserManager manager = null;
+
+		if (userManagerClass != null && userManagerClass.getConstructors().length > 0) {
+			try {
+				Constructor<?> userManagerConstructor = userManagerClass.getConstructor(Properties.class);
+				manager = (UserManager) userManagerConstructor.newInstance(userManagerProps);
+			} 
+			catch (Exception e) {
+				logger.error("Could not instantiate UserManager "+ userManagerClass.getName());
+				throw new RuntimeException(e);
+			}
+
+		} 
+		else {
+			manager = new nowick.user.XmlUserManager(userManagerProps);
+		}
+
+		return manager;
+	}
+	
+	public UserManager getUserManager() {
+		return userManager;
 	}
 }
