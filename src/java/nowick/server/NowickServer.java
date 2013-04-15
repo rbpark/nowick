@@ -37,11 +37,6 @@ public class NowickServer implements NowickParameters{
 				.acceptsAll(Arrays.asList("c", "conf"), "The conf dir for Nowick.")
 				.withRequiredArg()
 				.describedAs("conf").ofType(String.class);
-		
-		OptionSpec<String> dataDirectory = parser
-				.acceptsAll(Arrays.asList("d", "data"), "The data dir for Nowick.")
-				.withRequiredArg()
-				.describedAs("data").ofType(String.class);
 
 		OptionSet options = parser.parse(args);
 		

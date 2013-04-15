@@ -10,5 +10,4 @@ public class TemplateManager {
 	public TemplateManager(Properties templateProps) {
 		
 	}
-	
 }
