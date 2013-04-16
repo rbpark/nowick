@@ -70,4 +70,12 @@ public class Utils {
 		}
 		return buffer.toString();
 	}
+	
+	public static <T> T nonNull(T t) {
+		if (t == null) {
+			throw new IllegalArgumentException("Null value not allowed.");
+		} else {
+			return t;
+		}
+	}
 }

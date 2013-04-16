@@ -1,0 +1,7 @@
+#macro(nowick)
+	#if($user)
+		<div>Logged In</div>
+	#else
+		<div>Logged Out</div>
+	#end
+#end

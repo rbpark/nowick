@@ -1,0 +1,11 @@
+<!DOCTYPE html> 
+<html>
+	<head>
+		<title>Nowick Base Template</title>
+	</head>
+	<body>
+		<div class="blobEdit">
+		</div>
+		#nowick()
+	</body>
+</html>

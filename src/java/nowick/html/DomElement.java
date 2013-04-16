@@ -32,6 +32,10 @@ public abstract class DomElement {
 		return content;
 	}
 	
+	public void setContent(String content) {
+		this.content = content;
+	}
+	
 	public void writeHtml(int indentNum, Writer writer) throws IOException {
 		String tag = getTag();
 		writeIndents(indentNum, writer);

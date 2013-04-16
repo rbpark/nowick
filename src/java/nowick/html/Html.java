@@ -1,9 +1,12 @@
 package nowick.html;
 
 public class Html extends DomElement {
+	private Head head;
+	private Body body;
+	
 	public Html() {
-		Head head = new Head();
-		Body body = new Body();
+		head = new Head();
+		body = new Body();
 		super.add(head);
 		super.add(body);
 	}
@@ -14,5 +17,13 @@ public class Html extends DomElement {
 	@Override
 	public String getTag() {
 		return "html";
+	}
+	
+	public Head getHead() {
+		return head;
+	}
+	
+	public Body getBody() {
+		return body;
 	}
 }

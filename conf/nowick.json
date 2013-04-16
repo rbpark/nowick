@@ -1,7 +1,7 @@
 {
 	"jetty":{
 		"num.connections": 100,
-		"port":180,
+		"port":1800,
 		"resource.dir": "web/",
 		"use.ssl.authentication": true,
 		"jetty.ssl": {

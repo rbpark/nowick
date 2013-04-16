@@ -21,6 +21,7 @@ public interface NowickParameters {
 
 	// Defaults
 	public static final int DEFAULT_NUM_THREADS = 25;
+	public static final int DEFAULT_PORT = 180;
 	public static final int DEFAULT_AUTHENTICATION_PORT = 443;
 	public static final int DEFAULT_MAX_FORM_CONTENT_SIZE = 10*1024*1024;
 	public static final int DEFAULT_MAX_HEADER_BUFFER_SIZE = 10*1024*1024;
