@@ -5,3 +5,8 @@
 		<div>Logged Out</div>
 	#end
 #end
+
+#macro(nowickcontentpanel)
+<div class="nowickContent">
+</div>
+#end

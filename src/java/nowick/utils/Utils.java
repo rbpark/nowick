@@ -78,4 +78,13 @@ public class Utils {
 			return t;
 		}
 	}
+	
+	public static String[] splitByIndex(String str, int index) {
+		String[] res = new String[] {
+			str.substring(0, index),
+			str.substring(index + 1)
+		};
+		
+		return res;
+	}
 }

@@ -130,7 +130,6 @@ public class AbstractServlet extends HttpServlet {
 		return HttpRequestUtils.getLongParam(request, name, defaultVal);
 	}
 
-	
 	public Map<String, String> getParamGroup(HttpServletRequest request, String groupName)  throws ServletException {
 		return HttpRequestUtils.getParamGroup(request, groupName);
 	}

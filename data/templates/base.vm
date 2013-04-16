@@ -2,10 +2,12 @@
 <html>
 	<head>
 		<title>Nowick Base Template</title>
+		<script type="text/javascript" src="/js/jquery/jquery-1.9.1.min.js"></script>
+		<script type="text/javascript" src="/js/jquery/backbone-0.9.10-min.js"></script>
+		<script type="text/javascript" src="/js/jquery/underscore-1.4.4-min.js"></script>
+		<script type="text/javascript" src="/js/nowick/nowickeditor.js"></script>
 	</head>
 	<body>
-		<div class="blobEdit">
-		</div>
-		#nowick()
+		#nowickcontentpanel()
 	</body>
 </html>

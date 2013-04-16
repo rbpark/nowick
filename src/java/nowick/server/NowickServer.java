@@ -23,9 +23,9 @@ import org.mortbay.jetty.Server;
 import org.mortbay.jetty.bio.SocketConnector;
 import org.mortbay.jetty.security.SslSocketConnector;
 import org.mortbay.jetty.servlet.Context;
+import org.mortbay.jetty.servlet.DefaultServlet;
 import org.mortbay.jetty.servlet.ServletHolder;
 import org.mortbay.thread.QueuedThreadPool;
-
 
 public class NowickServer implements NowickParameters{
 	private static final Logger logger = Logger.getLogger(NowickServer.class);
@@ -121,8 +121,16 @@ public class NowickServer implements NowickParameters{
 		socketConnector.setPort(jettyProperties.getInt(PORT, DEFAULT_PORT));
 		server.addConnector(socketConnector);
 		
+		root.setResourceBase(props.getString(RESOURCE_DIR, "data/web"));
 		root.setAttribute(NOWICK_SERVER_CONTEXT_KEY, this);
-		root.addServlet(new ServletHolder(new AbstractServlet()),"/");
+		
+		ResourceServlet resourceServlet = new ResourceServlet();
+		resourceServlet.addResourceDir("/js", new File(props.getString(RESOURCE_DIR, "data/web/js")));
+		resourceServlet.addResourceDir("/css", new File(props.getString(RESOURCE_DIR, "data/web/css")));
+		root.addServlet(new ServletHolder(resourceServlet),"/js/*");
+		root.addServlet(new ServletHolder(resourceServlet),"/css/*");
+		
+		root.addServlet(new ServletHolder(new AbstractServlet()),"/*");
 		
 		// Setup auth to be on ssl port if desired.
 		if (jettyProperties.getBoolean(USE_SSL_AUTHENTICATION)) {
@@ -131,6 +139,7 @@ public class NowickServer implements NowickParameters{
 			secureContext.setAttribute(NOWICK_SERVER_CONTEXT_KEY, this);
 			
 			SslSocketConnector secureConnector = new SslSocketConnector();
+			secureContext.setResourceBase(props.getString(RESOURCE_DIR, "data/web"));
 			Properties jettySSLProperties = jettyProperties.getSubProperty(JETTY_SSL);
 			secureConnector.setPort(jettySSLProperties.getInt(PORT, DEFAULT_AUTHENTICATION_PORT));
 			secureConnector.setKeystore(jettySSLProperties.getString(JETTY_SSL_KEYSTORE));
