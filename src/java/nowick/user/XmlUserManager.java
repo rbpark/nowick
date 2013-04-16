@@ -20,13 +20,13 @@ import org.xml.sax.SAXException;
 public class XmlUserManager implements UserManager {
 	private static final Logger logger = Logger.getLogger(XmlUserManager.class.getName());
 
-	public static final String XML_FILE_PARAM = "user.xml.file";
+	public static final String XML_FILE_PARAM = "xml.file";
 	public static final String AZKABAN_USERS_TAG = "users";
 	public static final String USER_TAG = "user";
 	public static final String USERNAME_ATTR = "username";
 	public static final String PASSWORD_ATTR = "password";
 
-	private String xmlPath;
+	private File xmlPath;
 
 	private HashMap<String, User> users;
 	private HashMap<String, String> userPassword;
@@ -36,16 +36,29 @@ public class XmlUserManager implements UserManager {
 	 * The constructor.
 	 * 
 	 * @param props
+	 * @throws UserManagerException 
 	 */
-	public XmlUserManager(Properties props) {
-		File file = new File(props.getSource());
-		file.getParent();
-		parseXMLFile();
+	public XmlUserManager(Properties props) throws UserManagerException {
+		xmlPath = getXmlFile(props);
+		parseXMLFile(xmlPath);
+
 	}
 
-	private void parseXMLFile() {
-		File file = new File(xmlPath);
-		if (!file.exists()) {
+	private File getXmlFile(Properties props) throws UserManagerException {
+		String file = props.getString(XML_FILE_PARAM);
+		File xmlFile = new File(file);
+		
+		if (xmlFile.exists()) {
+			return xmlFile;
+		}
+		else {
+			xmlFile = new File(props.getSource(), file);
+			return xmlFile;
+		}
+	}
+	
+	private void parseXMLFile(File xmlPath) {
+		if (!xmlPath.exists()) {
 			throw new IllegalArgumentException("User xml file " + xmlPath + " doesn't exist.");
 		}
 
@@ -64,7 +77,7 @@ public class XmlUserManager implements UserManager {
 
 		Document doc = null;
 		try {
-			doc = builder.parse(file);
+			doc = builder.parse(xmlPath);
 		} catch (SAXException e) {
 			throw new IllegalArgumentException("Exception while parsing "
 					+ xmlPath + ". Invalid XML.", e);

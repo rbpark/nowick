@@ -2,14 +2,12 @@ package nowick.utils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Properties {
 	private Map<String, Object> parameters;
 	private String source = null;
-	private String[] path = null;
 	
 	public Properties() {
 		parameters = new HashMap<String, Object>();
@@ -19,10 +17,9 @@ public class Properties {
 		parameters = map;
 	}
 	
-	private Properties(Map<String,Object> map, String source, String[] path) {
+	private Properties(Map<String,Object> map, String source) {
 		parameters = map;
 		this.source = source;
-		this.path = path;
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -51,8 +48,7 @@ public class Properties {
 	
 	public Properties getSubProperty(String path) {
 		Map<String, Object> map = getMap(path);
-		String[] newPath = Arrays.copyOfRange(this.path, 1, path.length());
-		return new Properties(map, source, newPath);
+		return new Properties(map, source);
 	}
 	
 	public int getInt(String path) {

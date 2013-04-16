@@ -9,6 +9,7 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 
+import nowick.user.DefaultUserManager;
 import nowick.user.UserManager;
 import nowick.utils.Properties;
 
@@ -20,9 +21,11 @@ import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.ServletHolder;
 import org.mortbay.thread.QueuedThreadPool;
 
+
 public class NowickServer implements NowickParameters{
 	private static final Logger logger = Logger.getLogger(NowickServer.class);
 	private static final String CONF_FILE_NAME = "nowick.json";
+	public static final String NOWICK_SERVER_CONTEXT_KEY = "nowick.sever.context";
 	
 	private Properties props;
 	private final Server server;
@@ -107,11 +110,13 @@ public class NowickServer implements NowickParameters{
 		server.setThreadPool(httpThreadPool);
 		SocketConnector socketConnector = new SocketConnector();
 		socketConnector.setPort(jettyProperties.getInt(PORT, DEFAULT_AUTHENTICATION_PORT));
-
+		root.setAttribute(NOWICK_SERVER_CONTEXT_KEY, this);
+		
 		// Setup auth to be on ssl port if desired.
 		if (jettyProperties.getBoolean(USE_SSL_AUTHENTICATION)) {
 			secureServer = new Server();
 			Context secureContext = new Context(secureServer, "/", true, true);
+			secureContext.setAttribute(NOWICK_SERVER_CONTEXT_KEY, this);
 			
 			SslSocketConnector secureConnector = new SslSocketConnector();
 			Properties jettySSLProperties = jettyProperties.getSubProperty(JETTY_SSL);
@@ -175,7 +180,7 @@ public class NowickServer implements NowickParameters{
 	private UserManager loadUserManager(Properties userManagerProps) {
 		Class<?> userManagerClass = null;
 		try {
-			userManagerClass = Class.forName(props.getString(USER_MANAGER_CLASS));
+			userManagerClass = Class.forName(userManagerProps.getString(USER_MANAGER_CLASS));
 		} catch (ClassNotFoundException e1) {
 			throw new RuntimeException("Cannot load user manager class " + props.getString(USER_MANAGER_CLASS));
 		}
@@ -194,7 +199,7 @@ public class NowickServer implements NowickParameters{
 
 		} 
 		else {
-			manager = new nowick.user.XmlUserManager(userManagerProps);
+			manager = new DefaultUserManager(userManagerProps);
 		}
 
 		return manager;
