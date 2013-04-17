@@ -10,3 +10,14 @@
 <div class="nowickContent">
 </div>
 #end
+
+#macro(nowickfootermenu)
+<div id="nowickfooter">
+	<div id="nowickfooter-expandclose">
+	</div>
+	<div id="nowickfooter-menu">
+		<button class="footer-icon">Create Page</button>
+		<button class="footer-icon">Edit Page</button>
+	</div>
+</div>
+#end

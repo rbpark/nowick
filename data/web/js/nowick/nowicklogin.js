@@ -1,8 +1,7 @@
-
-$.namespace('azkaban');
+$.namespace('nowick');
 
 var loginView;
-azkaban.LoginView= Backbone.View.extend({
+nowick.LoginView= Backbone.View.extend({
 	events : {
 		"click #loginSubmit": "handleLogin",
 		"keypress input": "handleKeyPress"
@@ -17,9 +16,9 @@ azkaban.LoginView= Backbone.View.extend({
 		
 		$.ajax({
 			async: "false",
-			url: contextURL,
+			url: "/auth",
 			dataType: "json",
-			type: "POST",
+			type: "GET",
 			data: {action:"login", username:username, password:password},
 			success: function(data) {
 				if (data.error) {
@@ -42,5 +41,5 @@ azkaban.LoginView= Backbone.View.extend({
 });
 
 $(function() {
-	loginView = new azkaban.LoginView({el:$('#nowickLogin')});
+	loginView = new nowick.LoginView({el:$('#nowickLogin')});
 });

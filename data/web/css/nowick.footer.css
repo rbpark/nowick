@@ -1,0 +1,34 @@
+body {
+	margin: 0px;
+	padding: 0px;
+	overflow: hidden;
+}
+
+#nowickfooter {
+	position: absolute;
+	bottom: 0px;
+	left: 50px;
+	right: 50px;
+	margin: 0px;
+	padding: 0px;
+}
+
+#nowickfooter-expandclose {
+	border-top-left-radius: 10px 5px;
+	border-top-right-radius: 10px 5px;
+	height: 10px;
+	background-color: rgba(25, 25, 25, .5);
+	width: 200px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#nowickfooter-menu {
+	height: 40px;
+	border-top-left-radius: 10px 5px;
+	border-top-right-radius: 10px 5px;
+	background-color: rgba(25, 25, 25, .5);
+	width: 100%;
+}
+
+

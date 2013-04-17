@@ -15,10 +15,10 @@ import nowick.user.SessionCache;
 import nowick.user.User;
 import nowick.user.UserManager;
 import nowick.user.UserManagerException;
+import nowick.utils.HttpRequestUtils;
 
 public class AuthServlet extends AbstractServlet {
 	private static final long serialVersionUID = -1085287133718477821L;
-	private NowickServer application;
 	
 	@Override
 	public void init(ServletConfig config) throws ServletException {
@@ -40,24 +40,26 @@ public class AuthServlet extends AbstractServlet {
 			String password = getParam(req, "password");
 			String url = getParam(req, "url", null);
 			
-			UserManager manager = application.getUserManager();
+			UserManager manager = getApplication().getUserManager();
 			try {
 				User user = manager.getUser(username, password);
 				if (user == null) {
 					map.put("error", "User and password not found.");
 				}
 				else {
-					SessionCache cache = application.getSessionCache();
-					Session oldSession = ServletUtils.getSessionFromRequest(cache, req);
+					SessionCache cache = getApplication().getSessionCache();
+					Session oldSession = HttpRequestUtils.getSessionFromRequest(cache, req);
 					Session session = createSession(req);
 					
 					if (session == null) {
 						map.put("error", "Could not create user session.");
 					}
 					else {
-						cache.removeSession(oldSession.getSessionId());
+						if (oldSession != null) {
+							cache.removeSession(oldSession.getSessionId());
+						}
 						cache.addSession(session);
-						ServletUtils.addSessionCookie(resp, session);
+						HttpRequestUtils.addSessionCookie(resp, session);
 
 						map.put("session.id", session.getSessionId());
 						if (url != null) {

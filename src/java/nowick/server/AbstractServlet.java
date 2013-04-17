@@ -114,7 +114,7 @@ public class AbstractServlet extends HttpServlet {
 		Page page = new Page(req, resp, getApplication().getVelocityEngine(), template);
 		page.add("context", req.getContextPath());
 		if (session != null) {
-			page.add("user", session.getUser());
+			page.add("user", session.getUser().getUserId());
 		}
 		
 		return page;

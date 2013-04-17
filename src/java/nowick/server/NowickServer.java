@@ -138,6 +138,7 @@ public class NowickServer implements NowickParameters{
 			Context secureContext = new Context(secureServer, "/", true, true);
 			secureContext.setAttribute(NOWICK_SERVER_CONTEXT_KEY, this);
 			
+			
 			SslSocketConnector secureConnector = new SslSocketConnector();
 			secureContext.setResourceBase(props.getString(RESOURCE_DIR, "data/web"));
 			Properties jettySSLProperties = jettyProperties.getSubProperty(JETTY_SSL);
@@ -150,8 +151,11 @@ public class NowickServer implements NowickParameters{
 			secureConnector.setHeaderBufferSize(jettySSLProperties.getInt(MAX_HEADER_CONTEXT_SIZE, DEFAULT_MAX_HEADER_BUFFER_SIZE));
 
 			secureServer.addConnector(secureConnector);
-			secureContext.addServlet(new ServletHolder(new AuthServlet(this)),"/auth");
 			
+			secureContext.addServlet(new ServletHolder(resourceServlet),"/js/*");
+			secureContext.addServlet(new ServletHolder(resourceServlet),"/css/*");
+			secureContext.addServlet(new ServletHolder(new AuthServlet(this)),"/auth");
+						
 			logger.info("Starting auth server on SSL server on port " + secureConnector.getPort());
 			try {
 				secureServer.start();

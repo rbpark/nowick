@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import nowick.template.Page;
 import nowick.user.Session;
+import nowick.utils.HttpRequestUtils;
 
 /**
  * Base Servlet for pages
@@ -35,7 +36,7 @@ public class AbstractSessionServlet extends AbstractServlet {
 	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException {
-		Session session = ServletUtils.getSessionFromRequest(getApplication().getSessionCache(), req);
+		Session session = HttpRequestUtils.getSessionFromRequest(getApplication().getSessionCache(), req);
 		Page newPage = newPage(req, resp, session, "base.vm");
 		newPage.render();
 	}

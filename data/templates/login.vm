@@ -3,8 +3,10 @@
 	<head>
 		<title>Nowick Base Admin Template</title>
 		<script type="text/javascript" src="/js/jquery/jquery-1.9.1.min.js"></script>
-		<script type="text/javascript" src="/js/jquery/backbone-0.9.10-min.js"></script>
+		<script type="text/javascript" src="/js/jquery/namespace.js"></script>
 		<script type="text/javascript" src="/js/jquery/underscore-1.4.4-min.js"></script>
+		<script type="text/javascript" src="/js/jquery/backbone-0.9.10-min.js"></script>
+
 		<script type="text/javascript" src="/js/nowick/nowicklogin.js"></script>
 	</head>
 	<body>
