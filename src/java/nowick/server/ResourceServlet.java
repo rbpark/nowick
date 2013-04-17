@@ -16,7 +16,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
 
-
 public class ResourceServlet extends HttpServlet {
 	private static final long serialVersionUID = 3441087893911184318L;
 	private static HashMap<String, String> contextType = new HashMap<String,String>();
@@ -29,7 +28,7 @@ public class ResourceServlet extends HttpServlet {
 	}
 	
 	private HashMap<String, List<File>> resourceDirs = new HashMap<String, List<File>>();
-	
+
 	public ResourceServlet() {
 	}
 	

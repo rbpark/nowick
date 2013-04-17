@@ -23,7 +23,6 @@ import org.mortbay.jetty.Server;
 import org.mortbay.jetty.bio.SocketConnector;
 import org.mortbay.jetty.security.SslSocketConnector;
 import org.mortbay.jetty.servlet.Context;
-import org.mortbay.jetty.servlet.DefaultServlet;
 import org.mortbay.jetty.servlet.ServletHolder;
 import org.mortbay.thread.QueuedThreadPool;
 
@@ -65,6 +64,7 @@ public class NowickServer implements NowickParameters{
 			logger.error("Properties not found.");
 		}
 		else {
+			@SuppressWarnings("unused")
 			NowickServer server = new NowickServer(props);
 		}
 	}
@@ -130,7 +130,7 @@ public class NowickServer implements NowickParameters{
 		root.addServlet(new ServletHolder(resourceServlet),"/js/*");
 		root.addServlet(new ServletHolder(resourceServlet),"/css/*");
 		
-		root.addServlet(new ServletHolder(new AbstractServlet()),"/*");
+		root.addServlet(new ServletHolder(new AbstractSessionServlet(this)),"/*");
 		
 		// Setup auth to be on ssl port if desired.
 		if (jettyProperties.getBoolean(USE_SSL_AUTHENTICATION)) {
@@ -150,7 +150,7 @@ public class NowickServer implements NowickParameters{
 			secureConnector.setHeaderBufferSize(jettySSLProperties.getInt(MAX_HEADER_CONTEXT_SIZE, DEFAULT_MAX_HEADER_BUFFER_SIZE));
 
 			secureServer.addConnector(secureConnector);
-			secureContext.addServlet(new ServletHolder(new AuthServlet()),"/auth");
+			secureContext.addServlet(new ServletHolder(new AuthServlet(this)),"/auth");
 			
 			logger.info("Starting auth server on SSL server on port " + secureConnector.getPort());
 			try {
@@ -163,7 +163,7 @@ public class NowickServer implements NowickParameters{
 		}
 		else {
 			logger.info("Not using ssl for authentication. Using unsecure port " + socketConnector.getPort());
-			root.addServlet(new ServletHolder(new AuthServlet()),"/auth");
+			root.addServlet(new ServletHolder(new AuthServlet(this)),"/auth");
 		}
 		
 		logger.info("Starting server.");
