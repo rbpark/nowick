@@ -114,7 +114,7 @@ public class AbstractServlet extends HttpServlet {
 		Page page = new Page(req, resp, getApplication().getVelocityEngine(), template);
 		page.add("context", req.getContextPath());
 		if (session != null) {
-			page.add("user", session.getUser().getUserId());
+			page.add("userid", session.getUser().getUserId());
 		}
 		
 		return page;
@@ -149,5 +149,6 @@ public class AbstractServlet extends HttpServlet {
 	protected void writeJSON(HttpServletResponse resp, Object obj, boolean pretty) throws IOException {
 		resp.setContentType(JSON_MIME_TYPE);
 		JSONUtils.toJSON(obj, resp.getOutputStream(), true);
+		resp.getOutputStream().flush();
 	}
 }

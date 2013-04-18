@@ -30,15 +30,24 @@ public class AuthServlet extends AbstractServlet {
 	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		if (!hasParam(req, "action")) {
-			Page page = newPage(req, resp, "login.vm");
+		String action = getParam(req, "action", null);
+		HashMap<String,Object> map = new HashMap<String,Object>();
+		if (action == null) {
+			Page page = newPage(req, resp,"nowick/login.vm");
+
+			String path = req.getRequestURI().substring(req.getServletPath().length());
+			if (path.isEmpty()) {
+				path = "/admin";
+			}
+			String redirectURL = "http://" + req.getServerName() + ":" + getApplication().getPort() + path;
+			page.add("redirectURL", redirectURL);
+
 			page.render();
 		}
-		else {
-			HashMap<String,Object> map = new HashMap<String,Object>();
+		else if ("login".equals(action))
+		{
 			String username = getParam(req, "username");
 			String password = getParam(req, "password");
-			String url = getParam(req, "url", null);
 			
 			UserManager manager = getApplication().getUserManager();
 			try {
@@ -62,9 +71,6 @@ public class AuthServlet extends AbstractServlet {
 						HttpRequestUtils.addSessionCookie(resp, session);
 
 						map.put("session.id", session.getSessionId());
-						if (url != null) {
-							map.put("url", url);
-						}
 					}
 				}
 			} catch (UserManagerException e) {

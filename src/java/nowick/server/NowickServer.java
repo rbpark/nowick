@@ -39,6 +39,10 @@ public class NowickServer implements NowickParameters{
 	private SessionCache sessionCache;
 	private final VelocityEngine velocityEngine;
 	
+	private final boolean isSSLAuth;
+	private final int authPort;
+	private final int port;
+	
 	public static void main(String[] args) throws Exception {
 		OptionParser parser = new OptionParser();
 
@@ -118,7 +122,8 @@ public class NowickServer implements NowickParameters{
 		QueuedThreadPool httpThreadPool = new QueuedThreadPool(jettyProperties.getInt(NUM_CONNECTIONS, DEFAULT_NUM_THREADS));
 		server.setThreadPool(httpThreadPool);
 		SocketConnector socketConnector = new SocketConnector();
-		socketConnector.setPort(jettyProperties.getInt(PORT, DEFAULT_PORT));
+		port = jettyProperties.getInt(PORT, DEFAULT_PORT);
+		socketConnector.setPort(port);
 		server.addConnector(socketConnector);
 		
 		root.setResourceBase(props.getString(RESOURCE_DIR, "data/web"));
@@ -130,7 +135,8 @@ public class NowickServer implements NowickParameters{
 		root.addServlet(new ServletHolder(resourceServlet),"/js/*");
 		root.addServlet(new ServletHolder(resourceServlet),"/css/*");
 		
-		root.addServlet(new ServletHolder(new AbstractSessionServlet(this)),"/*");
+		root.addServlet(new ServletHolder(new AdminServlet(this)),"/admin/*");
+		root.addServlet(new ServletHolder(new AbstractServlet(this)),"/*");
 		
 		// Setup auth to be on ssl port if desired.
 		if (jettyProperties.getBoolean(USE_SSL_AUTHENTICATION)) {
@@ -138,11 +144,12 @@ public class NowickServer implements NowickParameters{
 			Context secureContext = new Context(secureServer, "/", true, true);
 			secureContext.setAttribute(NOWICK_SERVER_CONTEXT_KEY, this);
 			
-			
 			SslSocketConnector secureConnector = new SslSocketConnector();
 			secureContext.setResourceBase(props.getString(RESOURCE_DIR, "data/web"));
+			
 			Properties jettySSLProperties = jettyProperties.getSubProperty(JETTY_SSL);
-			secureConnector.setPort(jettySSLProperties.getInt(PORT, DEFAULT_AUTHENTICATION_PORT));
+			authPort = jettySSLProperties.getInt(PORT, DEFAULT_AUTHENTICATION_PORT);
+			secureConnector.setPort(authPort);
 			secureConnector.setKeystore(jettySSLProperties.getString(JETTY_SSL_KEYSTORE));
 			secureConnector.setPassword(jettySSLProperties.getString(JETTY_SSL_PASSWORD));
 			secureConnector.setKeyPassword(jettySSLProperties.getString(JETTY_SSL_KEYPASSWORD));
@@ -154,8 +161,11 @@ public class NowickServer implements NowickParameters{
 			
 			secureContext.addServlet(new ServletHolder(resourceServlet),"/js/*");
 			secureContext.addServlet(new ServletHolder(resourceServlet),"/css/*");
-			secureContext.addServlet(new ServletHolder(new AuthServlet(this)),"/auth");
-						
+			secureContext.addServlet(new ServletHolder(new AuthServlet(this)),"/login/*");
+			secureContext.addServlet(new ServletHolder(new RedirectServlet(this)), "/*");
+			
+			isSSLAuth = true;
+			
 			logger.info("Starting auth server on SSL server on port " + secureConnector.getPort());
 			try {
 				secureServer.start();
@@ -167,7 +177,9 @@ public class NowickServer implements NowickParameters{
 		}
 		else {
 			logger.info("Not using ssl for authentication. Using unsecure port " + socketConnector.getPort());
-			root.addServlet(new ServletHolder(new AuthServlet(this)),"/auth");
+			root.addServlet(new ServletHolder(new AuthServlet(this)),"/login/*");
+			authPort = port;
+			isSSLAuth = false;
 		}
 		
 		logger.info("Starting server.");
@@ -265,7 +277,7 @@ public class NowickServer implements NowickParameters{
 		engine.setProperty("resource.manager.logwhenfound", false);
 		engine.setProperty("velocimacro.permissions.allow.inline", true);
 		engine.setProperty("velocimacro.library.autoreload", devMode);
-		engine.setProperty("velocimacro.library", "macros.vm");
+		engine.setProperty("velocimacro.library", "nowick/macros.vm");
 		engine.setProperty("velocimacro.permissions.allow.inline.to.replace.global", true);
 		engine.setProperty("velocimacro.arguments.strict", true);
 		engine.setProperty("runtime.log.invalid.references", devMode);
@@ -281,5 +293,17 @@ public class NowickServer implements NowickParameters{
 	
 	public SessionCache getSessionCache() {
 		return sessionCache;
+	}
+	
+	public boolean isSSLAuth() {
+		return isSSLAuth;
+	}
+	
+	public int getAuthPort() {
+		return authPort;
+	}
+	
+	public int getPort() {
+		return port;
 	}
 }

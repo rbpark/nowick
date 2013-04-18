@@ -16,29 +16,42 @@
 
 package nowick.server;
 
+import java.io.IOException;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import nowick.template.Page;
 import nowick.user.Session;
 import nowick.utils.HttpRequestUtils;
 
 /**
  * Base Servlet for pages
  */
-public class AbstractSessionServlet extends AbstractServlet {
+public abstract class AbstractSessionServlet extends AbstractServlet {
 	private static final long serialVersionUID = -1;
-
+	
 	public AbstractSessionServlet(NowickServer server) {
 		super(server);
 	}
 	
 	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException {
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		Session session = HttpRequestUtils.getSessionFromRequest(getApplication().getSessionCache(), req);
-		Page newPage = newPage(req, resp, session, "base.vm");
-		newPage.render();
+		if (session == null) {
+			redirectToLogin(req, resp);
+		}
+		else {
+			handleGet(req, resp, session);
+		}
 	}
 
+	private void redirectToLogin(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		String requestURI = req.getRequestURI();
+		
+		String authURL = "https://" + req.getServerName() + ":" + getApplication().getAuthPort() + "/login" + requestURI;
+		resp.sendRedirect(resp.encodeRedirectURL(authURL));
+	}
+	
+	protected abstract void handleGet(HttpServletRequest req, HttpServletResponse resp, Session session);
 }

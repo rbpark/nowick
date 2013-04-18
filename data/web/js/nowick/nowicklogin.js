@@ -16,7 +16,7 @@ nowick.LoginView= Backbone.View.extend({
 		
 		$.ajax({
 			async: "false",
-			url: "/auth",
+			url: "login",
 			dataType: "json",
 			type: "GET",
 			data: {action:"login", username:username, password:password},
@@ -26,7 +26,7 @@ nowick.LoginView= Backbone.View.extend({
 					$('#errorMsg').slideDown('fast');
 				}
 				else {
-					
+					window.location.replace(redirectURL);
 				}
 			}
 		});
