@@ -11,7 +11,7 @@ import org.apache.velocity.app.VelocityEngine;
 /**
  * A page to display
  */
-public class Page {
+public class VelocityPage {
 	private static final String DEFAULT_MIME_TYPE = "text/html";
 	@SuppressWarnings("unused")
 	private final HttpServletRequest request;
@@ -29,7 +29,7 @@ public class Page {
 	 * @param engine
 	 * @param template
 	 */
-	public Page(HttpServletRequest request, HttpServletResponse response,
+	public VelocityPage(HttpServletRequest request, HttpServletResponse response,
 			VelocityEngine engine, String template) {
 		this.request = Utils.nonNull(request);
 		this.response = Utils.nonNull(response);

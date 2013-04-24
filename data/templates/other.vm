@@ -1,0 +1,10 @@
+<!DOCTYPE html> 
+<html>
+	<head>
+		<title>Nowick Base Template</title>
+		#nowickincludes() 
+	</head>
+	<body>
+	#parse($templates.index)
+	</body>
+</html>

@@ -1,6 +1,7 @@
 package nowick.utils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Random;
 
@@ -10,6 +11,7 @@ import java.util.Random;
 public class Utils {
 	public static final Random RANDOM = new Random();
 
+	
 	/**
 	 * Private constructor.
 	 */
@@ -32,6 +34,25 @@ public class Utils {
 		return a.equals(b);
 	}
 
+	/**
+	 * Ridiculously, the same file or directory will be different
+	 * if even the ending slash exists.
+	 * 
+	 * @param a
+	 * @param b
+	 * @return
+	 */
+	public static boolean canonicalFileEquals(File a, File b) {
+		try {
+			String aAbs = a.getCanonicalPath();
+			String bAbs = b.getCanonicalPath();
+			return aAbs.equals(bAbs);
+		}
+		catch (IOException e) {
+			return false;
+		}
+	}
+	
 	/**
 	 * Print the message and then exit with the given exit code
 	 * 

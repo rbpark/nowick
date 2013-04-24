@@ -3,14 +3,12 @@ package nowick.server;
 import java.io.IOException;
 import java.util.Map;
 
-import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import nowick.template.Page;
-import nowick.user.Session;
+import nowick.template.VelocityPage;
 import nowick.utils.HttpRequestUtils;
 import nowick.utils.JSONUtils;
 
@@ -29,10 +27,6 @@ public class AbstractServlet extends HttpServlet {
 	
 	protected NowickServer getApplication() {
 		return application;
-	}
-	
-	@Override
-	public void init(ServletConfig config) throws ServletException {
 	}
 	
 	/**
@@ -110,28 +104,10 @@ public class AbstractServlet extends HttpServlet {
 	 * @param template
 	 * @return
 	 */
-	protected Page newPage(HttpServletRequest req, HttpServletResponse resp, Session session, String template) {
-		Page page = new Page(req, resp, getApplication().getVelocityEngine(), template);
+	protected VelocityPage newPage(HttpServletRequest req, HttpServletResponse resp, String template) {
+		VelocityPage page = new VelocityPage(req, resp, getApplication().getVelocityEngine(), template);
 		page.add("context", req.getContextPath());
-		if (session != null) {
-			page.add("userid", session.getUser().getUserId());
-		}
-		
-		return page;
-	}
 
-	/**
-	 * Creates a new velocity page to use.
-	 * 
-	 * @param req
-	 * @param resp
-	 * @param template
-	 * @return
-	 */
-	protected Page newPage(HttpServletRequest req, HttpServletResponse resp, String template) {
-		Page page = new Page(req, resp, getApplication().getVelocityEngine(), template);
-		page.add("context", req.getContextPath());
-		
 		return page;
 	}
 	

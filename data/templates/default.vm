@@ -1,0 +1,18 @@
+<!DOCTYPE html> 
+<html>
+	<head>
+		<title>Nowick Base Template</title>
+		#nowickincludes() 
+	</head>
+	<body>
+	#parse("templates/header.vm")
+	<div class="content">
+		<div class="content editable">
+		#parse($templates.get("index"))
+		</div>
+	</div>
+	<div class="content editable">
+		#parse($templates.get("index"))
+	</div>
+	</body>
+</html>

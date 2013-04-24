@@ -7,10 +7,6 @@ import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import nowick.user.Session;
-import nowick.user.SessionCache;
 
 public class HttpRequestUtils {
 	
@@ -141,35 +137,6 @@ public class HttpRequestUtils {
 	
 	public static final String SESSION_ID_NAME = "nowick.browser.session.id";
 	
-	public static Session getSessionFromSessionId(SessionCache cache, String sessionId, String remoteIp) {
-		if (sessionId == null) {
-			return null;
-		}
-		
-		Session session = cache.getSession(sessionId);
-		// Check if the IP's are equal. If not, we invalidate the sesson.
-		if (session == null || !remoteIp.equals(session.getIp())) {
-			return null;
-		}
-		
-		return session;
-	}
-	
-	public static Session getSessionFromRequest(SessionCache cache, HttpServletRequest req) throws ServletException {
-		String remoteIp = req.getRemoteAddr();
-		Cookie cookie = getCookieByName(req, SESSION_ID_NAME);
-		String sessionId = null;
-
-		if (cookie != null) {
-			sessionId = cookie.getValue();
-		}
-		
-		if (sessionId == null && HttpRequestUtils.hasParam(req, "session.id")) {
-			sessionId = HttpRequestUtils.getParam(req, "session.id");
-		}
-		return getSessionFromSessionId(cache, sessionId, remoteIp);
-	}
-	
 	/**
 	 * Retrieves a cookie by name. Potential issue in performance if a lot of
 	 * cookie variables are used.
@@ -191,9 +158,4 @@ public class HttpRequestUtils {
 		return null;
 	}
 
-	public static void addSessionCookie(HttpServletResponse response, Session session) {
-		Cookie cookie = new Cookie(SESSION_ID_NAME, session.getSessionId());
-		cookie.setPath("/");
-		response.addCookie(cookie);
-	}
 }

@@ -1,23 +1,21 @@
-#macro(nowick)
-	#if($user)
-		<div>Logged In</div>
-	#else
-		<div>Logged Out</div>
+#macro(nowickincludes)
+	<script type="text/javascript" src="/js/jquery-1.9.1.min.js"></script>
+	<script type="text/javascript" src="/js/jquery-1.9.1.min.js"></script>
+	<script type="text/javascript" src="/js/underscore-1.4.4-min.js"></script>
+	<script type="text/javascript" src="/js/namespace.js"></script>
+	<script type="text/javascript" src="/js/backbone-0.9.10-min.js"></script>
+	<link rel="stylesheet" type="text/css" href="/css/common.css" />
+	#if ($editing) 
+		<script type="text/javascript" src="/js/jquery-ui-1.10.2.min.js"></script>
+		<script type="text/javascript" src="/js/nowickfooter.js"></script>
+		<link rel="stylesheet" type="text/css" href="/css/nowick.footer.css" />
 	#end
 #end
 
-#macro(nowickcontentpanel)
-<div class="nowickContent">
+#macro(nowick)
+#if($edit)
+<div class="nowickContent editable">
 </div>
 #end
 
-#macro(nowickfootermenu)
-<div id="nowickfooter">
-	<div id="nowickfooter-expandclose">
-	</div>
-	<div id="nowickfooter-menu">
-		<button class="footer-icon">Create Page</button>
-		<button class="footer-icon">Edit Page</button>
-	</div>
-</div>
 #end

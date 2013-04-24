@@ -1,20 +1,6 @@
 {
-	"jetty":{
-		"num.connections": 100,
-		"port":1800,
-		"resource.dir": "web/",
-		"use.ssl.authentication": true,
-		"jetty.ssl": {
-			"port": 1444,
-			"keystore": "keystore",
-			"password": "password",
-			"keypassword": "password",
-			"truststore": "keystore",
-			"trustpassword": "password"
-		}
-	},
-	"user.manager": {
-		"user.manager.class":"nowick.user.UserManager",
-		"xml.file":"conf/user.xml"
-	}
+	"num.connections": 100,
+	"port":1800,
+	"data.dir": "data/",
+	"site.dir": "site/"
 }
