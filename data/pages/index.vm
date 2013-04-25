@@ -1,1 +1,17 @@
 I am index 1.
+<ul>
+	<li>I am <span style="font-weight: bold;">a</span> list</li>
+	<li>List 2</li>
+	<li>List 3</li>
+	<li>List 4</li>
+</ul>
+
+<table>
+	<thead>
+		<tr><th>First</th><th>Second</th></tr>
+	</thead>
+	<tbody>
+		<tr><td>1</td><td>11</td></tr>
+		<tr><td>2</td><td>22</td></tr>
+	</tbody>
+</table>

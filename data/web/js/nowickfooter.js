@@ -3,6 +3,7 @@ $.namespace('nowick');
 var floatingEditor;
 nowick.FloatingEditor = Backbone.View.extend({
 	events: {
+		"click #nowickeditorclose": "stopEdit"
 	},
 	initialize: function(settings) {
 		$(this.el).draggable({cursor: 'move'});
@@ -16,12 +17,23 @@ nowick.FloatingEditor = Backbone.View.extend({
 		$(".editable").bind("click", this.editableClicked);
 	},
 	turnOffEditMode: function(evt) {
-		
+		this.stopEdit(evt);
+		$(".editable").removeClass("nowick-editable");
+		$(".editable").unbind("click", this.editableClicked);
 	},
 	editableClicked: function(evt) {
 		console.log("edit clicked");
 		floatingEditor.startEdit(evt.currentTarget);
 		$(evt.currentTarget).unbind("click", this.editableClicked);
+	},
+	stopEdit: function(evt) {
+		if (this.editingTarget) {
+			$(this.editingTarget).removeClass('editing');
+			$(this.editingTarget).click(this.editableClicked);
+			$(this.editingTarget).unbind("keydown", handleKeydown)
+			this.editingTarget.contentEditable = false;
+		}
+		$(this.el).fadeOut(100);
 	},
 	startEdit: function(target) {
 		console.log("start edit called");
@@ -29,10 +41,14 @@ nowick.FloatingEditor = Backbone.View.extend({
 		if (this.editingTarget) {
 			$(this.editingTarget).removeClass('editing');
 			$(this.editingTarget).click(this.editableClicked);
+			$(this.editingTarget).unbind("keydown", handleKeydown);
+			this.editingTarget.contentEditable = false;
 		}
 		
 		this.editingTarget = target;
 		$(target).unbind("click", this.editableClicked);
+		$(target).bind("keydown", handleKeydown);
+		prepareElementForEdit(target);
 		
 		var currentTarget = target;
 		$(currentTarget).addClass("editing");

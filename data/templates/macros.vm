@@ -7,6 +7,7 @@
 	<link rel="stylesheet" type="text/css" href="/css/common.css" />
 	#if ($editing) 
 		<script type="text/javascript" src="/js/jquery-ui-1.10.2.min.js"></script>
+		<script type="text/javascript" src="/js/nowick.content.editable.js"></script>
 		<script type="text/javascript" src="/js/nowickfooter.js"></script>
 		<link rel="stylesheet" type="text/css" href="/css/nowick.footer.css" />
 	#end

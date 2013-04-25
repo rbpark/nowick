@@ -13,6 +13,9 @@
 	</div>
 	<div class="content editable">
 		#parse($templates.get("index"))
+		<pre>
+			I'm a pre and so I can dod whatever I want.	Blah.
+		</pre>
 	</div>
 	</body>
 </html>

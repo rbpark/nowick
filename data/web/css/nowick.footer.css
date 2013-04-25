@@ -4,6 +4,10 @@ body {
 	overflow: hidden;
 }
 
+p {
+	margin: 2px;
+}
+
 #nowickfooter {
 	opacity: 0.2;
 	position: absolute;
@@ -81,6 +85,19 @@ body {
 .nowick-editable.editing {
 	outline: 3px solid rgba(59, 176, 225, 1);
 }
+
+.nowick-editable.editing table:hover {
+	outline: 3px solid rgba(59, 176, 225, 0.5);
+}
+
+.nowick-editable.editing table td:hover {
+	outline: 3px solid rgba(59, 176, 225, 0.5);
+}
+
+.nowick-editable.editing table th:hover {
+	outline: 3px solid rgba(59, 176, 225, 0.5);
+}
+
 
 #nowickeditor {
 	position: absolute;
